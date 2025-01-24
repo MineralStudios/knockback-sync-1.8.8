@@ -13,6 +13,8 @@ val snapshot = true
 val githubRepo = System.getenv("GITHUB_REPOSITORY") ?: project.findProperty("githubRepo").toString()
 
 allprojects {
+    apply(plugin = "maven-publish")
+
     fun getVersionMeta(includeHash: Boolean): String {
         if (!snapshot) {
             return ""
