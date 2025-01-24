@@ -1,0 +1,6 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"  # Define the package manager
+    directory: "/"  # Location of the gradle package manifest (build.gradle)
+    schedule:
+      interval: "daily"  # Schedule to check for updates daily
