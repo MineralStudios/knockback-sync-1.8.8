@@ -1,3 +1,5 @@
+# A fork for Spigot 1.8.8
+
 [![Get it on Modrinth](https://img.shields.io/badge/Get%20it%20on-Modrinth-green?style=for-the-badge&logo=modrinth)](https://modrinth.com/plugin/knockbacksync)
 
 Tired of inconsistent knockback ruining your PvP experience? Our plugin recalculates knockback as if it were done clientside, leveling the playing field and ensuring every player enjoys a fair fight, no matter their connection quality.
