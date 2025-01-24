@@ -13,8 +13,6 @@ val snapshot = true
 val githubRepo = System.getenv("GITHUB_REPOSITORY") ?: project.findProperty("githubRepo").toString()
 
 allprojects {
-    apply(plugin = "maven-publish")
-
     fun getVersionMeta(includeHash: Boolean): String {
         if (!snapshot) {
             return ""
@@ -50,6 +48,17 @@ allprojects {
         maven("https://maven.neoforged.net/releases")
         maven("https://repo.codemc.io/repository/maven-snapshots/")
     }
+}
+
+subprojects {
+    apply(plugin = "java")
+    apply(plugin = "maven-publish")
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
 
     publishing {
         publications {
@@ -71,14 +80,5 @@ allprojects {
                 }
             }
         }
-    }
-}
-
-subprojects {
-    apply(plugin = "java")
-
-    java {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
