@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     // True compileOnly deps
-    compileOnly("org.geysermc.floodgate:api:2.0-SNAPSHOT")
+    compileOnly("org.geysermc.floodgate:api:2.2.3-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
 

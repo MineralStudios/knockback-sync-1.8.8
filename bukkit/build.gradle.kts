@@ -30,7 +30,7 @@ dependencies {
     implementation(project(":common"))
 
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
-    compileOnly("org.geysermc.floodgate:api:2.0-SNAPSHOT")
+    compileOnly("org.geysermc.floodgate:api:2.2.3-SNAPSHOT")
 
     compileOnly("org.projectlombok:lombok:1.18.34")
     annotationProcessor("org.projectlombok:lombok:1.18.34")
