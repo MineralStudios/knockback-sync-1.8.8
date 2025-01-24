@@ -1,7 +1,6 @@
 package me.caseload.knockbacksync.player;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.protocol.world.BoundingBox;
 import com.github.retrooper.packetevents.util.Vector3d;
@@ -13,7 +12,6 @@ import me.caseload.knockbacksync.world.SpigotWorld;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class BukkitPlayer implements PlatformPlayer {
     public final Player bukkitPlayer;
@@ -30,41 +29,21 @@ public class BukkitPlayer implements PlatformPlayer {
     // Reflection variables
     private static Class<?> craftPlayerClass;
     private static Method getHandleMethod;
+    @Nullable
     private static Method getAttackStrengthScaleMethod;
-    private static ServerVersion currentVersion = PacketEvents.getAPI().getServerManager().getVersion();
 
     // 1.12.2 support
     static {
         try {
             // Check the current server version
-
             // If the version is greater than 1.14.4, use the Player method directly
-            if (currentVersion.isOlderThan(ServerVersion.V_1_15)) {
-                Object server = Bukkit.getServer().getClass().getDeclaredMethod("getServer").invoke(Bukkit.getServer());
-                String nmsPackage = server.getClass().getPackage().getName();
-                String bukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
+            Object server = Bukkit.getServer().getClass().getDeclaredMethod("getServer").invoke(Bukkit.getServer());
+            String bukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
 
-                // Step 1: Load the CraftPlayer class
-                craftPlayerClass = Class.forName(bukkitPackage + ".entity.CraftPlayer");
-                // Step 2: Get the getHandle method
-                getHandleMethod = craftPlayerClass.getMethod("getHandle");
-                // Step 3: Get the getAttackStrengthScale method from the EntityPlayer class
-                Class<?> entityPlayerClass = Class.forName(nmsPackage + ".EntityPlayer");
-                String getAttackStrengthScaleMethodName = "";
-
-                // Determine the method name based on the version
-                if (currentVersion.isOlderThan(ServerVersion.V_1_13)) {
-                    getAttackStrengthScaleMethodName = "n";
-                } else if (currentVersion.isOlderThan(ServerVersion.V_1_14)) {
-                    getAttackStrengthScaleMethodName = "r";
-                } else if (currentVersion.isOlderThan(ServerVersion.V_1_15)) {
-                    getAttackStrengthScaleMethodName = "s";
-                }
-
-                // Get the attack strength scale method for EntityPlayer
-                getAttackStrengthScaleMethod = entityPlayerClass.getMethod(getAttackStrengthScaleMethodName, float.class);
-                getAttackStrengthScaleMethod.setAccessible(true);
-            }
+            // Step 1: Load the CraftPlayer class
+            craftPlayerClass = Class.forName(bukkitPackage + ".entity.CraftPlayer");
+            // Step 2: Get the getHandle method
+            getHandleMethod = craftPlayerClass.getMethod("getHandle");
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new IllegalStateException("Method of Class required to support this version not found via reflection" + e);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -124,21 +103,21 @@ public class BukkitPlayer implements PlatformPlayer {
 
     @Override
     public int getPing() {
-        if (currentVersion.isNewerThanOrEquals(ServerVersion.V_1_16_5)) {
-            return bukkitPlayer.getPing();
-        } else {
-            return PacketEvents.getAPI().getPlayerManager().getPing(bukkitPlayer);
-        }
+        //if (currentVersion.isNewerThanOrEquals(ServerVersion.V_1_16_5)) {
+        //return bukkitPlayer.getPing();
+        //} else {
+        return PacketEvents.getAPI().getPlayerManager().getPing(bukkitPlayer);
+        //}
     }
 
     @Override
     public boolean isGliding() {
-        return bukkitPlayer.isGliding();
+        return false /*bukkitPlayer.isGliding()*/;
     }
 
     @Override
     public PlatformWorld getWorld() {
-        return BukkitBase.INSTANCE.getPlatform() == Platform.FOLIA ? new FoliaWorld(bukkitPlayer.getWorld()): new SpigotWorld(bukkitPlayer.getWorld());
+        return BukkitBase.INSTANCE.getPlatform() == Platform.FOLIA ? new FoliaWorld(bukkitPlayer.getWorld()) : new SpigotWorld(bukkitPlayer.getWorld());
     }
 
     @Override
@@ -154,7 +133,8 @@ public class BukkitPlayer implements PlatformPlayer {
 
     @Override
     public double getAttackCooldown() {
-        if (currentVersion.isNewerThan(ServerVersion.V_1_14_4)) {
+        return 0.0;
+        /*if (currentVersion.isNewerThan(ServerVersion.V_1_14_4)) {
             return bukkitPlayer.getAttackCooldown();
         } else {
             try {
@@ -166,7 +146,7 @@ public class BukkitPlayer implements PlatformPlayer {
             } catch (Exception e) {
                 throw new IllegalStateException("This plugin will not work. NMS mapping for getAttackCooldown() failed!");
             }
-        }
+        }*/
     }
 
     @Override
@@ -176,7 +156,7 @@ public class BukkitPlayer implements PlatformPlayer {
 
     @Override
     public int getMainHandKnockbackLevel() {
-        return bukkitPlayer.getInventory().getItemInMainHand().getEnchantmentLevel(Enchantment.KNOCKBACK);
+        return bukkitPlayer.getInventory().getItemInHand().getEnchantmentLevel(Enchantment.KNOCKBACK);
     }
 
     @Override
@@ -197,21 +177,27 @@ public class BukkitPlayer implements PlatformPlayer {
 
     @Override
     public double getJumpPower() {
-        double jumpVelocity = 0.42;
+        AtomicReference<Double> jumpVelocity = new AtomicReference<>(0.42);
 
-        PotionEffect jumpEffect = bukkitPlayer.getPotionEffect(PotionEffectType.JUMP);
-        if (jumpEffect != null) {
-            int amplifier = jumpEffect.getAmplifier();
-            jumpVelocity += (amplifier + 1) * 0.1F;
-        }
+        bukkitPlayer.getActivePotionEffects().stream().filter(effect -> effect.getType() == PotionEffectType.JUMP).findAny().ifPresent(
+                jumpEffect -> {
+                    int amplifier = jumpEffect.getAmplifier();
+                    jumpVelocity.updateAndGet(v -> v + (amplifier + 1) * 0.1F);
+                }
+        );
 
-        return jumpVelocity;
+        return jumpVelocity.get();
     }
 
     @Override
     public BoundingBox getBoundingBox() {
-        org.bukkit.util.BoundingBox boundingBox = bukkitPlayer.getBoundingBox();
-        return new BoundingBox(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());
+        double minX = bukkitPlayer.getLocation().getX() - 0.3;
+        double minY = bukkitPlayer.getLocation().getY();
+        double minZ = bukkitPlayer.getLocation().getZ() - 0.3;
+        double maxX = bukkitPlayer.getLocation().getX() + 0.3;
+        double maxY = bukkitPlayer.getLocation().getY() + 1.8;
+        double maxZ = bukkitPlayer.getLocation().getZ() + 0.3;
+        return new BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     @Override

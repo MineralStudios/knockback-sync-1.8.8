@@ -37,7 +37,7 @@ public class YamlConfiguration {
         }
 
         fileContents = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-        data = yaml.load(fileContents);
+        data = (Map<String, Object>) yaml.load(fileContents);
         if (data == null) {
             data = new LinkedHashMap<>();
         }

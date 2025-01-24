@@ -10,10 +10,8 @@ import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.caseload.knockbacksync.world.raytrace.FluidHandling;
 import me.caseload.knockbacksync.world.raytrace.RayTraceResult;
 import org.bukkit.Bukkit;
-import org.bukkit.FluidCollisionMode;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.util.Vector;
 
 import java.lang.reflect.Method;
 
@@ -80,7 +78,7 @@ public class SpigotWorld implements PlatformWorld {
     @Override
     public WrappedBlockState getBlockStateAt(int x, int y, int z) {
         Block block = world.getBlockAt(x, y, z);
-        return SpigotConversionUtil.fromBukkitBlockData(block.getBlockData());
+        return SpigotConversionUtil.fromBukkitMaterialData(block.getState().getData());
     }
 
     @Override
@@ -90,58 +88,37 @@ public class SpigotWorld implements PlatformWorld {
 
     @Override
     public RayTraceResult rayTraceBlocks(Vector3d start, Vector3d direction, double maxDistance, FluidHandling fluidHandling, boolean ignorePassableBlocks) {
-        if (PacketEvents.getAPI().getServerManager().getVersion().isNewerThan(ServerVersion.V_1_12_2)) {
-            Vector startVec = new Vector(start.getX(), start.getY(), start.getZ());
-            Vector directionVec = new Vector(direction.getX(), direction.getY(), direction.getZ());
+        try {
+            // Create start and end positions
+            Object startPos = vec3DClass.getConstructor(double.class, double.class, double.class)
+                    .newInstance(start.getX(), start.getY(), start.getZ());
+            Object endPos = vec3DAddMethod.invoke(startPos, direction.getX(), direction.getY(), direction.getZ());
 
-            FluidCollisionMode fluidMode = (fluidHandling == FluidHandling.NONE) ? FluidCollisionMode.NEVER :
-                    (fluidHandling == FluidHandling.SOURCE_ONLY) ? FluidCollisionMode.SOURCE_ONLY :
-                            FluidCollisionMode.ALWAYS;
+            // Call rayTrace method
+            Object hitResult = rayTraceMethod.invoke(craftWorldGetHandleMethod.invoke(world), startPos, endPos, false, true, false);
+            if (hitResult == null) return null;
 
-            org.bukkit.util.RayTraceResult result = world.rayTraceBlocks(startVec.toLocation(world), directionVec, maxDistance, fluidMode, ignorePassableBlocks);
+            // Extract hit position and direction
+            Vector3d hitPosition = new Vector3d(
+                    (double) hitResult.getClass().getField("pos").get(hitResult),
+                    (double) hitResult.getClass().getField("pos").get(hitResult).getClass().getField("y").get(hitResult.getClass().getField("pos").get(hitResult)),
+                    (double) hitResult.getClass().getField("pos").get(hitResult).getClass().getField("z").get(hitResult.getClass().getField("pos").get(hitResult))
+            );
 
-            if (result == null) return null;
+            Object hitDirection = hitResult.getClass().getField("direction").get(hitResult);
+            Object hitBlock = hitResult.getClass().getField("e").get(hitResult); // e = BlockHitResult
 
             return new RayTraceResult(
-                    new Vector3d(result.getHitPosition().getX(), result.getHitPosition().getY(), result.getHitPosition().getZ()),
-                    getBlockFaceFrom(result.getHitBlockFace()),
-                    new Vector3i(result.getHitBlock().getX(), result.getHitBlock().getY(), result.getHitBlock().getZ()),
-                    result.getHitBlock() != null ? SpigotConversionUtil.fromBukkitBlockData(result.getHitBlock().getBlockData()) : null
+                    hitPosition,
+                    getHitBlockFace(hitDirection),
+                    new Vector3i((int) hitBlock.getClass().getField("x").get(hitBlock),
+                            (int) hitBlock.getClass().getField("y").get(hitBlock),
+                            (int) hitBlock.getClass().getField("z").get(hitBlock)),
+                    hitBlock != null ? WrappedBlockState.getByString(hitBlock.getClass().getField("type").get(hitBlock).toString()) : null
             );
-            // Only tested on 1.12.2
-        } else {
-            try {
-                // Create start and end positions
-                Object startPos = vec3DClass.getConstructor(double.class, double.class, double.class)
-                        .newInstance(start.getX(), start.getY(), start.getZ());
-                Object endPos = vec3DAddMethod.invoke(startPos, direction.getX(), direction.getY(), direction.getZ());
-
-                // Call rayTrace method
-                Object hitResult = rayTraceMethod.invoke(craftWorldGetHandleMethod.invoke(world), startPos, endPos, false, true, false);
-                if (hitResult == null) return null;
-
-                // Extract hit position and direction
-                Vector3d hitPosition = new Vector3d(
-                        (double) hitResult.getClass().getField("pos").get(hitResult),
-                        (double) hitResult.getClass().getField("pos").get(hitResult).getClass().getField("y").get(hitResult.getClass().getField("pos").get(hitResult)),
-                        (double) hitResult.getClass().getField("pos").get(hitResult).getClass().getField("z").get(hitResult.getClass().getField("pos").get(hitResult))
-                );
-
-                Object hitDirection = hitResult.getClass().getField("direction").get(hitResult);
-                Object hitBlock = hitResult.getClass().getField("e").get(hitResult); // e = BlockHitResult
-
-                return new RayTraceResult(
-                        hitPosition,
-                        getHitBlockFace(hitDirection),
-                        new Vector3i((int) hitBlock.getClass().getField("x").get(hitBlock),
-                                (int) hitBlock.getClass().getField("y").get(hitBlock),
-                                (int) hitBlock.getClass().getField("z").get(hitBlock)),
-                        hitBlock != null ? WrappedBlockState.getByString(hitBlock.getClass().getField("type").get(hitBlock).toString()) : null
-                );
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null; // Return null if there was an error during ray tracing
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // Return null if there was an error during ray tracing
         }
     }
 

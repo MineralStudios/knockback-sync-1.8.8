@@ -4,7 +4,6 @@ import com.github.retrooper.packetevents.event.PacketListenerAbstract;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.attribute.Attributes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.protocol.player.ClientVersion;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateAttributes;
 import me.caseload.knockbacksync.Base;
 import me.caseload.knockbacksync.manager.PlayerDataManager;
@@ -88,12 +87,12 @@ public class AttributeChangeListener extends PacketListenerAbstract {
     // Yes this is not properly latency compensated, that would require including a proper simulation engine
     // Laggy players will just have to deal with being on the wrong gravity for a few hundred ms, too bad!
     public void onPlayerGravityChange(UUID uuid, double newGravity) {
-        PlayerData playerData = PlayerDataManager.getPlayerData(uuid);
-        if (playerData.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_20_5)) {
-            playerData.setGravityAttribute(newGravity);
-        } else {
-            currentGravity = defaultGravity;
-        }
+        //PlayerData playerData = PlayerDataManager.getPlayerData(uuid);
+        //if (playerData.getClientVersion().isNewerThanOrEquals(ClientVersion.V_1_20_5)) {
+        //playerData.setGravityAttribute(newGravity);
+        //} else {
+        currentGravity = defaultGravity;
+        //}
     }
 
     private void onPlayerKnockBackChange(UUID uuid, double newKnockbackResistance) {
