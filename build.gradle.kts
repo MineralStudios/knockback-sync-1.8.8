@@ -4,7 +4,7 @@ import java.util.Date
 
 plugins {
     id("java")
-    id("com.gradleup.shadow") version "8.3.3" apply false
+    id("com.gradleup.shadow") version "8.3.5" apply false
     id("maven-publish")
 }
 
