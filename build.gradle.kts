@@ -3,6 +3,7 @@ import java.io.ByteArrayOutputStream
 plugins {
     id("java")
     id("com.gradleup.shadow") version "8.3.3" apply false
+    id("maven-publish")
 }
 
 val fullVersion = "1.3.5"
@@ -44,6 +45,28 @@ allprojects {
         maven("https://libraries.minecraft.net/")
         maven("https://maven.neoforged.net/releases")
         maven("https://repo.codemc.io/repository/maven-snapshots/")
+    }
+
+    publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+                artifactId = project.name
+                version = SimpleDateFormat("yyyyMMdd-HH.mm.ss").format(Date())
+            }
+        }
+    
+        repositories {
+            maven {
+                name = "mineralDevPrivate"
+                url = uri("https://repo.mineral.gg/private")
+                credentials {
+                    // cast findProperty(...) to String? since it can be null
+                    username = findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                    password = findProperty("gpr.token") as String? ?: System.getenv("TOKEN")
+                }
+            }
+        }
     }
 }
 
