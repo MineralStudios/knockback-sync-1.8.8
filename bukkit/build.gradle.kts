@@ -38,7 +38,7 @@ dependencies {
     shadeThisThing(implementation("org.kohsuke:github-api:1.326")!!)
     compileOnly("com.github.retrooper:packetevents-spigot:2.7.1-SNAPSHOT")
 //    shadeThisThing(implementation("net.kyori:adventure-platform-bukkit:4.3.4")!!)
-    shadeThisThing(implementation("org.incendo:cloud-paper:2.0.0-beta.10")!!)
+    shadeThisThing(implementation("org.incendo:cloud-paper:2.0.0-SNAPSHOT")!!)
     shadeThisThing(implementation("org.incendo:cloud-core:2.0.0")!!)
 
     // Required for 1.14.4 support because gson is too old to have JosnParser.parseString()
