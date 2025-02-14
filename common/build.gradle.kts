@@ -10,7 +10,7 @@ dependencies {
 
     // Shaded in or bundled by platform-specific code
     compileOnly("com.github.retrooper:packetevents-api:2.7.0-SNAPSHOT")
-    implementation("org.yaml:snakeyaml:2.0")
+    implementation("org.yaml:snakeyaml:2.3")
 //    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 //    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.2")
     implementation("org.kohsuke:github-api:1.326") {
