@@ -19,7 +19,7 @@ dependencies {
     }
 
     implementation("org.incendo:cloud-core:2.0.0")
-    implementation("org.incendo:cloud-minecraft-extras:2.0.0-beta.10")
+    implementation("org.incendo:cloud-minecraft-extras:2.0.0-SNAPSHOT")
 }
 
 buildConfig {
