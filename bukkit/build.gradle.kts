@@ -42,7 +42,7 @@ dependencies {
     shadeThisThing(implementation("org.incendo:cloud-core:2.0.0")!!)
 
     // Required for 1.14.4 support because gson is too old to have JosnParser.parseString()
-    shadeThisThing(implementation("com.google.code.gson:gson:2.11.0")!!)
+    shadeThisThing(implementation("com.google.code.gson:gson:2.12.1")!!)
 }
 
 tasks.withType<ShadowJar> {
