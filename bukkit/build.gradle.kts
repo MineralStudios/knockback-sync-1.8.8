@@ -32,8 +32,8 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     compileOnly("org.geysermc.floodgate:api:2.0-SNAPSHOT")
 
-    compileOnly("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
 
     shadeThisThing(implementation("org.kohsuke:github-api:1.327")!!)
     compileOnly("com.github.retrooper:packetevents-spigot:2.7.1-SNAPSHOT")

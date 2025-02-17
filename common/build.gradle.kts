@@ -5,8 +5,8 @@ plugins {
 dependencies {
     // True compileOnly deps
     compileOnly("org.geysermc.floodgate:api:2.0-SNAPSHOT")
-    compileOnly("org.projectlombok:lombok:1.18.34")
-    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    compileOnly("org.projectlombok:lombok:1.18.36")
+    annotationProcessor("org.projectlombok:lombok:1.18.36")
 
     // Shaded in or bundled by platform-specific code
       compileOnly("com.github.retrooper:packetevents-api:2.7.1-SNAPSHOT")
