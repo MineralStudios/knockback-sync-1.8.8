@@ -36,7 +36,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.38")
 
     shadeThisThing(implementation("org.kohsuke:github-api:1.327")!!)
-    compileOnly("com.github.retrooper:packetevents-spigot:2.7.1-SNAPSHOT")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.8.0-SNAPSHOT")
 //    shadeThisThing(implementation("net.kyori:adventure-platform-bukkit:4.3.4")!!)
     shadeThisThing(implementation("org.incendo:cloud-paper:2.0.0-SNAPSHOT")!!)
     shadeThisThing(implementation("org.incendo:cloud-core:2.0.0")!!)
