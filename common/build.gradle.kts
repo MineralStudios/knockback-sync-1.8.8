@@ -1,5 +1,5 @@
 plugins {
-    id("com.github.gmazzo.buildconfig") version "5.6.4"
+    id("com.github.gmazzo.buildconfig") version "5.6.5"
 }
 
 dependencies {
